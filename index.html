@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>신라대학교 입학처와 함께하는 행운의 로또 추첨기</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Pretendard', sans-serif; }
+        .lotto-ball {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: white;
+            box-shadow: inset -4px -4px 8px rgba(0,0,0,0.3), 0 6px 12px rgba(0,0,0,0.15);
+        }
+        @keyframes rumbling {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            20% { transform: translate(-3px, 3px) rotate(-3deg); }
+            40% { transform: translate(3px, -2px) rotate(3deg); }
+            60% { transform: translate(-2px, -3px) rotate(-1deg); }
+            80% { transform: translate(2px, 2px) rotate(2deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+        .rumble {
+            animation: rumbling 0.1s infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 min-h-screen flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-3xl shadow-2xl p-8 max-w-md w-full text-center relative overflow-hidden">
+        
+        <!-- 신라대학교 재치 있는 응원 배너 -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-3 mb-6 shadow-md text-white">
+            <p class="text-xs font-semibold tracking-wider uppercase opacity-90">🎓 Silla Univ. Official Luck</p>
+            <p class="text-sm font-bold mt-0.5">"인생역전의 기회! 신라대가 기원합니다"</p>
+        </div>
+
+        <h1 class="text-2xl font-bold text-white mb-1">🎰 신라대학교 로또 추첨기</h1>
+        <p class="text-slate-400 text-sm mb-6">버튼 누르고 팔자 펴기 프로젝트 가동!</p>
+
+        <!-- 로또 추첨기 통 -->
+        <div id="machine" class="bg-slate-900 border-2 border-dashed border-slate-700 rounded-2xl h-36 flex items-center justify-center mb-6 relative overflow-hidden shadow-inner">
+            <div id="mixingText" class="text-slate-500 font-medium text-sm">도파민이 팡!팡! 강력한 번호 대기 중...</div>
+            <div id="rollingBall" class="hidden lotto-ball text-2xl">?</div>
+        </div>
+
+        <!-- 최종 확정된 번호들이 나열될 영역 -->
+        <div class="mb-8">
+            <p class="text-xs text-slate-400 mb-2 font-semibold">이번 주 주인공이 될 당첨 번호</p>
+            <div id="ballContainer" class="flex flex-wrap justify-center gap-2.5 min-h-[60px] items-center">
+                <span class="text-slate-500 text-sm">아직 추첨 전입니다. (빨리 눌러봐요!)</span>
+            </div>
+        </div>
+
+        <!-- 추첨 버튼 -->
+        <button id="drawBtn" onclick="startDrawing()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transition duration-200 text-lg cursor-pointer">
+            🍀 신라대의 기운을 담아 추첨!
+        </button>
+
+        <!-- 결과 메시지 -->
+        <div id="message" class="mt-5 text-sm font-medium text-emerald-400 h-6"></div>
+    </div>
+
+    <script>
+        function getBallColor(number) {
+            if (number <= 10) return 'bg-amber-400'; 
+            if (number <= 20) return 'bg-blue-500';  
+            if (number <= 30) return 'bg-red-500';   
+            if (number <= 40) return 'bg-slate-600'; 
+            return 'bg-emerald-500';                 
+        }
+
+        let isDrawing = false;
+
+        function startDrawing() {
+            if (isDrawing) return; 
+            isDrawing = true;
+
+            const btn = document.getElementById('drawBtn');
+            const container = document.getElementById('ballContainer');
+            const machine = document.getElementById('machine');
+            const mixingText = document.getElementById('mixingText');
+            const rollingBall = document.getElementById('rollingBall');
+            const message = document.getElementById('message');
+
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            container.innerHTML = '';
+            message.textContent = '';
+
+            let numbers = Array.from({ length: 45 }, (_, i) => i + 1);
+            for (let i = numbers.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+            }
+
+            let selectedNumbers = numbers.slice(0, 6).sort((a, b) => a - b);
+            let currentIndex = 0;
+
+            function drawNextBall() {
+                if (currentIndex < selectedNumbers.length) {
+                    const targetNum = selectedNumbers[currentIndex];
+                    
+                    machine.classList.add('rumble');
+                    mixingText.style.display = 'none';
+                    rollingBall.classList.remove('hidden');
+                    
+                    const wittyMessages = [
+                        "장학금보다 짜릿한 번호 추출 중...",
+                        "교수님도 모르게 몰래 뽑는 중...",
+                        "기운을 영혼까지 끌어모으는 중...",
+                        "로또 당첨되면 학교에 동상 세우나요?",
+                        "합격자 발표보다 떨리는 순간...",
+                        "축하합니다! (아직 아님) 거의 다 됨..."
+                    ];
+                    message.textContent = wittyMessages[currentIndex];
+
+                    let rollCount = 0;
+                    let rollInterval = setInterval(() => {
+                        let tempNum = Math.floor(Math.random() * 45) + 1;
+                        rollingBall.className = `lotto-ball ${getBallColor(tempNum)}`;
+                        rollingBall.textContent = tempNum;
+                        rollCount++;
+
+                        if (rollCount > 12) {
+                            clearInterval(rollInterval);
+
+                            machine.classList.remove('rumble');
+                            rollingBall.className = `lotto-ball ${getBallColor(targetNum)}`;
+                            rollingBall.textContent = targetNum;
+
+                            setTimeout(() => {
+                                const ball = document.createElement('div');
+                                ball.className = `lotto-ball ${getBallColor(targetNum)}`;
+                                ball.textContent = targetNum;
+                                container.appendChild(ball);
+
+                                rollingBall.classList.add('hidden');
+                                mixingText.style.display = 'block';
+                                mixingText.textContent = `신라대 기운 충전 완료 (${currentIndex + 1}/6)`;
+
+                                currentIndex++;
+                                setTimeout(drawNextBall, 400);
+                            }, 400);
+                        }
+                    }, 60);
+
+                } else {
+                    message.textContent = '🎉 대박 기원 완료! 신라대학교가 당신의 1등을 응원합니다!';
+                    mixingText.textContent = '추첨 완료! 로또 1등 기원 🙏';
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    isDrawing = false;
+                }
+            }
+
+            drawNextBall();
+        }
+    </script>
+</body>
+</html>
